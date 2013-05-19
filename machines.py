@@ -34,7 +34,14 @@ libtcod.sys_set_fps(LIMIT_FPS)
 
 # CIRCUIT SIM SETUP
 
-testchip = Chip(10, 10, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'], "add")
+wirenew = None
+makingwire = False
+
+board = Board(SCREEN_WIDTH, SCREEN_HEIGHT)
+testchip2 = Chip(10, 10, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'], "add")
+testchip1 = Chip(20, 14, ['a', 'b', 'c', 'd', 'e', 'f'], "sub")
+board.connect(testchip1)
+board.connect(testchip2)
 
 # render things with images
 # def render(drawables):
@@ -92,9 +99,20 @@ while not libtcod.console_is_window_closed():
 	# libtcod.console_set_default_foreground(None, libtcod.white)
 	# render(board.wires)		# draw the wires
 	
+	# render wires
+	for w in board.wires:
+		for (x0, y0), (x1, y1) in zip(w.nodes, w.nodes[1:]):
+			libtcod.line_init(x0, y0, x1, y1)
+
+			x, y = x0, y0
+			while (not x is None):
+				libtcod.console_set_char_background(None, x, y, libtcod.blue, flag=libtcod.BKGND_SET)
+				x, y = libtcod.line_step()
+
+	# render chips
 	libtcod.console_set_default_background(None, libtcod.black)
 	libtcod.console_set_default_foreground(None, libtcod.white)
-	render([testchip])
+	render(board.parts)
 
 	# draw the mouse cursor
 	libtcod.console_set_char_background(None, mouse.x/FONT_WIDTH, mouse.y/FONT_HEIGHT, libtcod.green, flag=libtcod.BKGND_SET)
@@ -111,7 +129,22 @@ while not libtcod.console_is_window_closed():
 
 	# mouse handler
 	if mouse.lbutton_pressed:
-		testchip.rotate(Chip.directions[(Chip.directions.index(testchip.dir)+1)%4])
+		x = mouse.x/FONT_WIDTH
+		y = mouse.y/FONT_HEIGHT
+
+		if x >= 0 and y >= 0 and x < SCREEN_WIDTH and y < SCREEN_HEIGHT:
+			if makingwire:
+				wirenew.route(x, y)
+			else:
+				wirenew = Wire(None, None, [(x, y)])
+				makingwire = True
+	
+	if mouse.rbutton_pressed:
+		if makingwire:
+			board.wires.append(wirenew)
+		makingwire = False
+
+		#testchip2.rotate(Chip.directions[(Chip.directions.index(testchip2.dir)+1)%4])
 	
 	# key handler
 	if key.vk == libtcod.KEY_DOWN:

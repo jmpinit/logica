@@ -217,7 +217,7 @@ class Board(object):
 	
 	# connect two pins with a wire
 	def wire(self, a, b):
-		self.wires.append(Node(self, a, b))
+		self.wires.append(Wire(self, a, b))
 
 # SPECIFIC DEVICES
 
