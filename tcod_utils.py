@@ -39,3 +39,41 @@ class Image(object):
 			
 		if x >= 0 and x <= self.width and y >= 0 and y <= self.height:
 			self.data[y][x] = v
+
+	def rotate90(self):
+		newimage = Image(self.height, self.width)
+
+		for y in range(0, self.height):
+			for x in range(0, self.width):
+				newx = self.height-y+1
+				newy = x
+
+				newimage.set(newx, newy, self.get(x, y))
+
+	def rotate270(self):
+		pass
+
+	def __str__(self):
+		msg = "Image - "
+		msg += str(self.width)+"x"+str(self.height)+"\n"
+		for y in range(0, self.height):
+			msg += self.getrow(y)+"\n"
+
+		return msg
+
+def pad(msg, length):
+	if len(msg)==length:
+		return msg
+	elif len(msg)>length:
+		return msg[0:length-1]
+	else:
+		diff = length-len(msg)
+		return msg+"X"*diff
+
+def abbrev(s):
+	shortened = ""
+	vowels = set(['a', 'e', 'i', 'o', 'u'])
+	for c in s:
+		if not c in vowels: shortened += c
+		
+	return shortened
