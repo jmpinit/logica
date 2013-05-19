@@ -2,11 +2,14 @@
 
 from random import choice
 from random import randint
+
 import math
 import os
 import libtcodpy as libtcod
 
+from machine_game import *
 from circuits import *
+from systems import *
 
 # LIBTCOD SETUP
 
@@ -28,36 +31,23 @@ libtcod.sys_set_fps(LIMIT_FPS)
 
 # CIRCUIT SIM SETUP
 
-# a = Resistor(4, 4)
-# b = Resistor(40, 8)
-# c = Resistor(25, 20)
-
-# board = Board(SCREEN_WIDTH, SCREEN_HEIGHT, [a, b, c])
-# board.wire(a.pins[1], b.pins[0])
-# board.wire(c.pins[0], a.pins[0])
-# board.wire(c.pins[1], b.pins[1])
-
-board = Board(SCREEN_WIDTH, SCREEN_HEIGHT)
-for i in range(0, 16):
-	x = randint(0, SCREEN_WIDTH-1)
-	y = randint(0, SCREEN_HEIGHT)
-	if not (routing.collide(x, y, board.parts) or routing.collide(x+1, y, board.parts)):
-		board.connect(Resistor(x, y))
-
-p = board.parts[:]
-for d in p:
-	board.wire(choice(p).pins[randint(0, 1)], choice(p).pins[randint(0, 1)])
+testchip = Chip(10, 10, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'], "adder")
 
 # render things with images
+# def render(drawables):
+	# for d in drawables:
+		# if d.solid:
+			# for y in range(0, d.image.height):
+				# libtcod.console_print_ex(None, d.x, d.y, libtcod.BKGND_SET, libtcod.LEFT, d.image.getrow(y))
+		# else:
+			# origin_x, origin_y, data = d.represent()
+			# for x, y in data.keys():
+				# libtcod.console_print_ex(None, x, y, libtcod.BKGND_SET, libtcod.LEFT, data[(x, y)])
+
 def render(drawables):
 	for d in drawables:
-		if d.solid:
-			for y in range(0, d.image.height):
-				libtcod.console_print_ex(None, d.x, d.y, libtcod.BKGND_SET, libtcod.LEFT, d.image.getrow(y))
-		else:
-			origin_x, origin_y, data = d.represent()
-			for x, y in data.keys():
-				libtcod.console_print_ex(None, x, y, libtcod.BKGND_SET, libtcod.LEFT, data[(x, y)])
+		for y in range(0, d.image.height):
+			libtcod.console_print_ex(None, d.x, d.y+y, libtcod.BKGND_SET, libtcod.LEFT, d.image.getrow(y))
 
 # render stats
 def stats():
@@ -86,12 +76,16 @@ mouse = libtcod.Mouse()
 while not libtcod.console_is_window_closed():
 	libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS|libtcod.EVENT_MOUSE,key,mouse)
 	
-	libtcod.console_set_default_background(None, libtcod.red)
-	libtcod.console_set_default_foreground(None, libtcod.black)
-	render(board.parts)		# draw the devices
+	# libtcod.console_set_default_background(None, libtcod.red)
+	# libtcod.console_set_default_foreground(None, libtcod.black)
+	# render(board.parts)		# draw the devices
+	# libtcod.console_set_default_background(None, libtcod.black)
+	# libtcod.console_set_default_foreground(None, libtcod.white)
+	# render(board.wires)		# draw the wires
+	
 	libtcod.console_set_default_background(None, libtcod.black)
 	libtcod.console_set_default_foreground(None, libtcod.white)
-	render(board.wires)		# draw the wires
+	render([testchip])
 	
 	stats()
 	

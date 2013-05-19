@@ -1,16 +1,16 @@
 import math
 import tcod_utils as util
 import routing
+from machine_game import *
 
-# physical object part to stick into circuit board
-class Device(object):
-	def __init__(self, x, y):
-		self.x = x
-		self.y = y
-		self.solid = True
+# physical circuit object
+class Device(Entity):
+	# pins is a list of pin names
+	def __init__(self, x, y, w, h, pins, name):
+		super(Device, self).__init__(x, y, w, h)
 		
-		# self.pins = []
-		# self.image = Image(1, 1)
+		self.name = name
+		self.pins = pins
 		
 # connection pt relative to parent device
 class Pin(object):
@@ -27,6 +27,30 @@ class Pin(object):
 
 	def __str__(self):
 		return "<Pin of "+str(self.parent)+" at ("+str(self.relx)+", "+str(self.rely)+")"
+
+class Chip(Device):
+	def __init__(self, x, y, pins, name):
+		if len(pins)%2 == 0:
+			super(Chip, self).__init__(x, y, len(pins)/2, 3, pins, name)
+		else:
+			super(Chip, self).__init__(x, y, len(pins)/2+1, 3, pins, name)
+		
+		# TODO Generate rotated images
+		# generate image
+		top_pins = "|"*self.width
+		if len(pins)%2 == 0:
+			bottom_pins = top_pins
+		else:
+			bottom_pins = "|"*(self.width-1)
+
+		label = self.name
+		if len(label) > self.width:
+			label = util.abbrev(label)
+
+		compressed = top_pins+util.pad(label, self.width)+bottom_pins
+		print compressed
+		self.image = util.Image.fromString(self.width, self.height, compressed)
+		print self.image
 
 # connect two or more pins
 class Node(object):
