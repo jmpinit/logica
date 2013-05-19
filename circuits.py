@@ -14,6 +14,22 @@ class Device(object):
 		
 		# self.pins = []
 		# self.image = Image(1, 1)
+		
+# connection pt relative to parent device
+class Pin(object):
+	def __init__(self, parent, x, y):
+		self.relx = x
+		self.rely = y
+		self.parent = parent
+		
+	def x(self):
+		return self.parent.x + self.relx
+		
+	def y(self):
+		return self.parent.y + self.rely
+
+	def __str__(self):
+		return "<Pin of "+str(self.parent)+" at ("+str(self.relx)+", "+str(self.rely)+")"
 
 # connect two or more pins
 class Node(object):
