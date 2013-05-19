@@ -24,6 +24,9 @@ LIMIT_FPS = 30
 SCREEN_WIDTH = 50
 SCREEN_HEIGHT = 30
 
+FONT_WIDTH = 10
+FONT_HEIGHT = 10
+
 libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
 libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, b'machines', False)
 
@@ -77,6 +80,10 @@ key = libtcod.Key()
 mouse = libtcod.Mouse()
 while not libtcod.console_is_window_closed():
 	libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS|libtcod.EVENT_MOUSE,key,mouse)
+
+	# RENDER STUFF
+
+	libtcod.console_clear(None)
 	
 	# libtcod.console_set_default_background(None, libtcod.red)
 	# libtcod.console_set_default_foreground(None, libtcod.black)
@@ -88,6 +95,9 @@ while not libtcod.console_is_window_closed():
 	libtcod.console_set_default_background(None, libtcod.black)
 	libtcod.console_set_default_foreground(None, libtcod.white)
 	render([testchip])
+
+	# draw the mouse cursor
+	libtcod.console_set_char_background(None, mouse.x/FONT_WIDTH, mouse.y/FONT_HEIGHT, libtcod.green, flag=libtcod.BKGND_SET)
 	
 	stats()
 	
