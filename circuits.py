@@ -15,10 +15,12 @@ class Device(Entity):
 		
 # connection pt relative to parent device
 class Pin(object):
-	def __init__(self, parent, x, y):
+	def __init__(self, parent, x, y, name):
 		self.relx = x
 		self.rely = y
 		self.parent = parent
+
+		self.name = name
 		
 	def x(self):
 		return self.parent.x + self.relx
@@ -30,11 +32,20 @@ class Pin(object):
 		return "<Pin of "+str(self.parent)+" at ("+str(self.relx)+", "+str(self.rely)+")"
 
 class Chip(Device):
+	directions = ['up', 'right', 'down', 'left']
+
 	def __init__(self, x, y, pins, name):
 		super(Chip, self).__init__(x, y, len(pins)/2+len(pins)%2, 3, pins, name)
 
+		self.dir = 'up'
+
+		# create pins
+		self.pins = []
+		for i in range(len(pins)):
+			self.pins.append(Pin(self, 0, 0, pins[i]))
+
 		self.bake_images()
-		self.rotate('right')
+		self.rotate(self.dir)
 
 	def bake_images(self):
 		# generate images (all rotations)
@@ -74,7 +85,7 @@ class Chip(Device):
 		uncompressed = []
 		for c in label_l:
 			uncompressed += ["-", c, "-"]
-		if len(self.pins)%2 == 1: uncompressed[-1] = " "
+		if len(self.pins)%2 == 1: uncompressed[-3] = " "
 
 		compressed = ''.join(uncompressed)
 
@@ -86,7 +97,7 @@ class Chip(Device):
 		uncompressed = []
 		for c in label_r:
 			uncompressed += ["-", c, "-"]
-		if len(self.pins)%2 == 1: uncompressed[0] = " "
+		if len(self.pins)%2 == 1: uncompressed[2] = " "
 
 		compressed = ''.join(uncompressed)
 
@@ -97,14 +108,61 @@ class Chip(Device):
 	def rotate(self, direction):
 		if not direction in set(['up', 'down', 'left', 'right']):
 			raise Exception('Chip Error', 'Valid directions are up, down, left, or right.')
+
 		self.image = self.images[direction]
 
+		# correct dimensions
 		if(direction == 'up' or direction == 'down'):
 			self.width = len(self.pins)/2+len(self.pins)%2
 			self.height = 3
 		else:
 			self.width = 3
 			self.height = len(self.pins)/2+len(self.pins)%2
+
+		if(direction == 'up'):
+			for i, p in enumerate(self.pins):
+				p.x = i%self.width
+				if(i < self.width):
+					p.y = 0
+				else:
+					p.y = 2
+		elif(direction == 'down'):
+			for i, p in enumerate(self.pins):
+				p.x = (self.width-i-1)%self.width
+				if(i < self.width):
+					p.y = 2
+				else:
+					p.y = 0
+		elif(direction == 'left'):
+			for i, p in enumerate(self.pins):
+				p.y = i%self.height
+				if(i < self.height):
+					p.x = 2
+				else:
+					p.x = 0
+		elif(direction == 'right'):
+			for i, p in enumerate(self.pins):
+				p.y = (self.height-i-1)%self.height
+				if(i < self.height):
+					p.x = 0
+				else:
+					p.x = 2
+		
+		self.dir = direction
+
+		# draw for debugging
+		for p in self.pins:
+			self.image.set(p.x, p.y, hex(self.pins.index(p))[2])
+
+class Wire(object):
+	def __init__(self, src, sink, nodes=[]):
+		self.src = src		# output pin
+		self.sink = sink	# input pin
+		self.nodes = nodes	# spots to route between
+	
+	# add a new node
+	def route(self, x, y):
+		self.nodes.append((x, y))
 
 # connect two or more pins
 class Node(object):

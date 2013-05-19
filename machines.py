@@ -108,6 +108,10 @@ while not libtcod.console_is_window_closed():
 	
 	libtcod.console_set_default_foreground(None, libtcod.grey)
 	libtcod.console_set_default_background(None, libtcod.black)
+
+	# mouse handler
+	if mouse.lbutton_pressed:
+		testchip.rotate(Chip.directions[(Chip.directions.index(testchip.dir)+1)%4])
 	
 	# key handler
 	if key.vk == libtcod.KEY_DOWN:
