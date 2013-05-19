@@ -1,8 +1,4 @@
 class Op(object):
-	def __init__(self, inp, out):
-		self.input = inp
-		self.output = out
-	
 	# get our value
 	def ask(self):
 		return 0
@@ -12,17 +8,26 @@ class Op(object):
 		pass
 
 class Multiply(Op):
+	def __init__(self):
+		self.num_inputs = 2
+
 	def ask(self):
-		return this.input[0].ask() * this.input[1].ask()
+		return self.input[0].ask() * self.input[1].ask()
 		
 class Add(Op):
+	def __init__(self):
+		self.num_inputs = 2
+
 	def ask(self):
-		return this.input[0].ask() + this.input[1].ask()
+		return self.input[0].ask() + self.input[1].ask()
 		
+# remembers a value for 1 timestep
 class R(Op):
 	def __init__(self):
 		self.start = 0
 		self.reset()
+
+		self.num_inputs = 1
 		
 	def reset(self):
 		self.value = self.start
@@ -32,3 +37,21 @@ class R(Op):
 		
 	def notify(self, val):
 		self.value = val
+
+# just passes through a value
+class Output(Op):
+	def __init__(self):
+		self.num_inputs = 1
+
+	def ask(self):
+		return self.input[0].ask()
+
+# always is same value
+class Const(Op):
+	def __init__(self, val):
+		self.value = val
+
+		self.num_inputs = 0
+
+	def ask(self):
+		return self.value
