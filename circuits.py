@@ -31,27 +31,80 @@ class Pin(object):
 
 class Chip(Device):
 	def __init__(self, x, y, pins, name):
-		if len(pins)%2 == 0:
-			super(Chip, self).__init__(x, y, len(pins)/2, 3, pins, name)
-		else:
-			super(Chip, self).__init__(x, y, len(pins)/2+1, 3, pins, name)
-		
-		# TODO Generate rotated images
-		# generate image
-		top_pins = "|"*self.width
-		if len(pins)%2 == 0:
-			bottom_pins = top_pins
-		else:
-			bottom_pins = "|"*(self.width-1)
+		super(Chip, self).__init__(x, y, len(pins)/2+len(pins)%2, 3, pins, name)
+
+		self.bake_images()
+		self.rotate('right')
+
+	def bake_images(self):
+		# generate images (all rotations)
+		self.images = {}
 
 		label = self.name
 		if len(label) > self.width:
 			label = util.abbrev(label)
+		label_l = util.pad(label, self.width)
+		label_r = util.pad_right(label, self.width)
 
-		compressed = top_pins+util.pad(label, self.width)+bottom_pins
-		self.image = util.Image.fromString(self.width, self.height, compressed)
+		# up
+		top_pins = "|"*self.width
+		if len(self.pins)%2 == 0:
+			bottom_pins = top_pins
+		else:
+			bottom_pins = "|"*(self.width-1)+" "
+
+		compressed = top_pins+label_l+bottom_pins
+		self.images['up'] = util.Image.fromString(self.width, self.height, compressed)
 		for x in range(self.width):
-			self.image.set_color(x, 1, tcod.red)
+			self.images['up'].set_color(x, 1, tcod.red)
+
+		# down
+		bottom_pins = "|"*self.width
+		if len(self.pins)%2 == 0:
+			top_pins = top_pins
+		else:
+			top_pins = " "+"|"*(self.width-1)
+
+		compressed = top_pins+label_r+bottom_pins
+		self.images['down'] = util.Image.fromString(self.width, self.height, compressed)
+		for x in range(self.width):
+			self.images['down'].set_color(x, 1, tcod.red)
+
+		# left
+		uncompressed = []
+		for c in label_l:
+			uncompressed += ["-", c, "-"]
+		if len(self.pins)%2 == 1: uncompressed[-1] = " "
+
+		compressed = ''.join(uncompressed)
+
+		self.images['left'] = util.Image.fromString(self.height, self.width, compressed)
+		for y in range(self.width):
+			self.images['left'].set_color(1, y, tcod.red)
+
+		# right
+		uncompressed = []
+		for c in label_r:
+			uncompressed += ["-", c, "-"]
+		if len(self.pins)%2 == 1: uncompressed[0] = " "
+
+		compressed = ''.join(uncompressed)
+
+		self.images['right'] = util.Image.fromString(self.height, self.width, compressed)
+		for y in range(self.width):
+			self.images['right'].set_color(1, y, tcod.red)
+	
+	def rotate(self, direction):
+		if not direction in set(['up', 'down', 'left', 'right']):
+			raise Exception('Chip Error', 'Valid directions are up, down, left, or right.')
+		self.image = self.images[direction]
+
+		if(direction == 'up' or direction == 'down'):
+			self.width = len(self.pins)/2+len(self.pins)%2
+			self.height = 3
+		else:
+			self.width = 3
+			self.height = len(self.pins)/2+len(self.pins)%2
 
 # connect two or more pins
 class Node(object):

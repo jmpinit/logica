@@ -31,7 +31,7 @@ libtcod.sys_set_fps(LIMIT_FPS)
 
 # CIRCUIT SIM SETUP
 
-testchip = Chip(10, 10, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'], "adder")
+testchip = Chip(10, 10, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'], "add")
 
 # render things with images
 # def render(drawables):
