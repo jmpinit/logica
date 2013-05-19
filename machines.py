@@ -46,8 +46,10 @@ testchip = Chip(10, 10, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'], "adder")
 
 def render(drawables):
 	for d in drawables:
-		for y in range(0, d.image.height):
-			libtcod.console_print_ex(None, d.x, d.y+y, libtcod.BKGND_SET, libtcod.LEFT, d.image.getrow(y))
+		for y in range(d.image.height):
+			for x in range(d.image.width):
+				libtcod.console_set_default_background(None, d.image.get_color(x, y))
+				libtcod.console_print_ex(None, d.x+x, d.y+y, libtcod.BKGND_SET, libtcod.LEFT, d.image.get(x, y))
 
 # render stats
 def stats():

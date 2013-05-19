@@ -1,3 +1,4 @@
+import libtcodpy as tcod
 import math
 import tcod_utils as util
 import routing
@@ -48,9 +49,9 @@ class Chip(Device):
 			label = util.abbrev(label)
 
 		compressed = top_pins+util.pad(label, self.width)+bottom_pins
-		print compressed
 		self.image = util.Image.fromString(self.width, self.height, compressed)
-		print self.image
+		for x in range(self.width):
+			self.image.set_color(x, 1, tcod.red)
 
 # connect two or more pins
 class Node(object):
