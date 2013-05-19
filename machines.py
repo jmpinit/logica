@@ -26,19 +26,25 @@ libtcod.sys_set_fps(LIMIT_FPS)
 
 # CIRCUIT SIM SETUP
 
-devices = [
-	Resistor(4, 4),
-	Resistor(40, 8),
-	Resistor(25, 30)
-]
+a = Resistor(4, 4)
+b = Resistor(40, 8)
+c = Resistor(25, 30)
+
+board = Board(SCREEN_WIDTH, SCREEN_HEIGHT, [a, b, c])
+board.wire(a.pins[0], b.pins[0])
 
 # render things with images
 def render(drawables):
 	libtcod.console_set_default_foreground(None, libtcod.white)
 	
 	for d in drawables:
-		for y in range(0, d.image.height):
-			libtcod.console_print(None, d.x, d.y, d.image.getrow(y))
+		if d.solid:
+			for y in range(0, d.image.height):
+				libtcod.console_print(None, d.x, d.y, d.image.getrow(y))
+		else:
+			origin_x, origin_y, data = d.represent()
+			for x, y in data.keys():
+				libtcod.console_print(None, x, y, data[(x, y)])
 
 # render stats
 def stats():
@@ -67,7 +73,9 @@ mouse = libtcod.Mouse()
 while not libtcod.console_is_window_closed():
 	libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS|libtcod.EVENT_MOUSE,key,mouse)
 	
-	render(devices)
+	# draw the devices
+	render(board.parts)
+	
 	stats()
 
 	libtcod.console_set_default_foreground(None, libtcod.grey)
