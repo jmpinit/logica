@@ -121,38 +121,38 @@ class Chip(Device):
 
 		if(direction == 'up'):
 			for i, p in enumerate(self.pins):
-				p.x = i%self.width
+				p.relx = i%self.width
 				if(i < self.width):
-					p.y = 0
+					p.rely = 0
 				else:
-					p.y = 2
+					p.rely = 2
 		elif(direction == 'down'):
 			for i, p in enumerate(self.pins):
-				p.x = (self.width-i-1)%self.width
+				p.relx = (self.width-i-1)%self.width
 				if(i < self.width):
-					p.y = 2
+					p.rely = 2
 				else:
-					p.y = 0
+					p.rely = 0
 		elif(direction == 'left'):
 			for i, p in enumerate(self.pins):
-				p.y = i%self.height
+				p.rely = i%self.height
 				if(i < self.height):
-					p.x = 2
+					p.relx = 2
 				else:
-					p.x = 0
+					p.relx = 0
 		elif(direction == 'right'):
 			for i, p in enumerate(self.pins):
-				p.y = (self.height-i-1)%self.height
+				p.rely = (self.height-i-1)%self.height
 				if(i < self.height):
-					p.x = 0
+					p.relx = 0
 				else:
-					p.x = 2
+					p.relx = 2
 		
 		self.dir = direction
 
 		# draw for debugging
 		for p in self.pins:
-			self.image.set(p.x, p.y, hex(self.pins.index(p))[2])
+			self.image.set(p.relx, p.rely, hex(self.pins.index(p))[2])
 
 class Wire(object):
 	def __init__(self, src, sink, nodes=[]):
