@@ -88,7 +88,7 @@ def pad_right(msg, length):
 	if len(msg)==length:
 		return msg
 	elif len(msg)>length:
-		return msg[0:length-1]
+		return msg[0:length]
 	else:
 		diff = length-len(msg)
 		return " "*diff+msg
