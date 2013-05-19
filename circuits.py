@@ -46,11 +46,12 @@ class Node(object):
 		return routing.ucSearch (
 			routing.CircuitSearchNode(
 				self.parent,
+				[self.src.parent],
 				(self.src.x(), self.src.y()),
-				None, 0, 1
+				None, 0, 3
 			),
-			lambda x: x == (self.dest.x(), self.dest.y()),
-			lambda x: math.sqrt((self.dest.x()-x[0])**2+(self.dest.y()-x[1])**2)
+			lambda x: any([x == (self.dest.x()+dx, self.dest.y()+dy) for dx, dy in [(1,0),(0,1),(-1,0),(0,-1)]]),
+			lambda (x, y): math.sqrt((self.dest.x()-x)**2+(self.dest.y()-y)**2)
 		)
 	
 	def represent(self):
@@ -58,8 +59,11 @@ class Node(object):
 			path = self.route()
 			
 			self.image = {}
-			for pt in path:
-				self.image[pt] = "*"
+			if(path):
+				for pt in path:
+					self.image[pt] = "*"
+			else:
+				self.image[(self.src.x(), self.src.y())] = "X"
 		
 		return (0, 0, self.image)
 
@@ -70,13 +74,14 @@ class Board(object):
 		self.height = h
 		
 		self.parts = parts
+		self.wires = []
 		
 	def connect(self, device):
 		self.parts.append(device)
 	
 	# connect two pins with a wire
 	def wire(self, a, b):
-		self.parts.append(Node(self, a, b))
+		self.wires.append(Node(self, a, b))
 
 # SPECIFIC DEVICES
 
@@ -85,5 +90,3 @@ class Resistor(Device):
 		super(Resistor, self).__init__(x, y)
 		self.pins = [Pin(self, 0, 0), Pin(self, 1, 0)]
 		self.image = util.Image.fromString(2, 1, "++")
-		
-	

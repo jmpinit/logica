@@ -15,12 +15,12 @@ try:
 except ImportError:
     pass
 
-LIMIT_FPS = 20
-SCREEN_WIDTH = 10
-SCREEN_HEIGHT = 10
+LIMIT_FPS = 30
+SCREEN_WIDTH = 50
+SCREEN_HEIGHT = 30
 
 libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
-libtcod.console_init_root(80, 50, b'machines', False)
+libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, b'machines', False)
 
 libtcod.sys_set_fps(LIMIT_FPS)
 
@@ -28,10 +28,12 @@ libtcod.sys_set_fps(LIMIT_FPS)
 
 a = Resistor(4, 4)
 b = Resistor(40, 8)
-c = Resistor(25, 30)
+c = Resistor(25, 20)
 
 board = Board(SCREEN_WIDTH, SCREEN_HEIGHT, [a, b, c])
-board.wire(a.pins[0], b.pins[0])
+board.wire(a.pins[1], b.pins[0])
+board.wire(c.pins[0], a.pins[0])
+board.wire(c.pins[1], b.pins[1])
 
 # render things with images
 def render(drawables):
@@ -73,10 +75,15 @@ mouse = libtcod.Mouse()
 while not libtcod.console_is_window_closed():
 	libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS|libtcod.EVENT_MOUSE,key,mouse)
 	
-	# draw the devices
-	render(board.parts)
+	render(board.wires)		# draw the wires
+	render(board.parts)		# draw the devices
 	
 	stats()
+	
+	#for y in range(0, SCREEN_HEIGHT):
+	#	for x in range(0, SCREEN_WIDTH):
+	#		if not routing.collide(x, y, board.parts):
+	#			libtcod.console_print(None, x, y, "Y")
 
 	libtcod.console_set_default_foreground(None, libtcod.grey)
 	libtcod.console_set_default_background(None, libtcod.black)
