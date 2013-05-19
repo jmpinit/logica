@@ -73,14 +73,25 @@ class Image(object):
 
 		return msg
 
+ 
 def pad(msg, length):
+	if len(msg)==length:
+		return msg
+	elif len(msg)>length:
+		return msg[0:length]
+	else:
+		diff = length-len(msg)
+		return msg+"X"*diff
+
+# like pad but right aligned
+def pad_right(msg, length):
 	if len(msg)==length:
 		return msg
 	elif len(msg)>length:
 		return msg[0:length-1]
 	else:
 		diff = length-len(msg)
-		return msg+"X"*diff
+		return "X"*diff+msg
 
 def abbrev(s):
 	shortened = ""
