@@ -81,7 +81,7 @@ def pad(msg, length):
 		return msg[0:length]
 	else:
 		diff = length-len(msg)
-		return msg+"X"*diff
+		return msg+" "*diff
 
 # like pad but right aligned
 def pad_right(msg, length):
@@ -91,7 +91,7 @@ def pad_right(msg, length):
 		return msg[0:length-1]
 	else:
 		diff = length-len(msg)
-		return "X"*diff+msg
+		return " "*diff+msg
 
 def abbrev(s):
 	shortened = ""
