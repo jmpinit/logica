@@ -1,4 +1,4 @@
 machines
 ========
 
-A silly rogue-like game with 3D circuit simulation for dungeon control.
+An ASCII-rendered space game with logic-circuit simulation for ship control.
