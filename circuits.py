@@ -108,7 +108,7 @@ class Chip(Device):
 			self.images['right'].set_color(1, y, tcod.red)
 	
 	def rotate(self, direction):
-		if not direction in set(['up', 'down', 'left', 'right']):
+		if not direction in set(directions):
 			raise Exception('Chip Error', 'Valid directions are up, down, left, or right.')
 
 		self.image = self.images[direction]
