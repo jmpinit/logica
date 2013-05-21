@@ -31,7 +31,7 @@ class Eventer(object):
 
 	def fire(self, event, *data):
 		if event in self.events:
-			listeners = self[event]
+			listeners = self.events[event]
 			for callback in listeners:
 				callback(data)
 
@@ -56,6 +56,8 @@ class Body(object):
 		self.y = y
 		self.rot = rot
 		self.px = " "
+
+		self.events = Eventer()
 
 class Renderer(object):
 	__metaclass__ = abc.ABCMeta
@@ -95,13 +97,13 @@ class Player(Body):
 
 	def control(self, keys):
 		if keys[0] == libtcod.KEY_RIGHT:
-			self.x += 1
+			self.events.fire('move', self, (self.x+1, self.y))
 		elif keys[0] == libtcod.KEY_UP:
-			self.y -= 1
+			self.events.fire('move', self, (self.x, self.y-1))
 		elif keys[0] == libtcod.KEY_LEFT:
-			self.x -= 1
+			self.events.fire('move', self, (self.x-1, self.y))
 		elif keys[0] == libtcod.KEY_DOWN:
-			self.y += 1
+			self.events.fire('move', self, (self.x, self.y+1))
 
 # basically just a 2D hashmap
 class Room(object):
@@ -135,16 +137,50 @@ class Room(object):
 class World(object):
 	def __init__(self):
 		self.rooms = [Room()]
+		self.current_room = self.rooms[0]
+		self.bodies = []
 
 		# create a test room
 		for y in range(0, 100):
 			for x in range(0, 100):
-				self.rooms[0].set(x, y, choice(['x', 'y', 'z']))
+				self.current_room.set(x, y, choice(['X', ' ', ' ']))
 
+	def add_body(self, body):
+		self.bodies.append(body)
+		body.events.listen(self.move_me, 'move')
+
+	# check whether a given position is solid
+	def solid(self, x, y):
+		nonsolid = [' ']
+
+		t = self.current_room.get(x, y)
+
+		if t == None:
+			return False
+		elif t in nonsolid:
+			return False
+		else:
+			return True
+
+	def move_me(self, data):
+		body, path = data
+
+		if type(path) == tuple:
+			x, y = path
+			if not self.solid(x, y):
+				body.x = x
+				body.y = y
+		elif type(path) == List:
+			pass
 
 event_sys = Eventer()
 world = World()
-renderers = [RoomRenderer(world.rooms[0])]
+bodies = [Player(10, 10, 'up')]
+
+for b in bodies:
+	world.add_body(b)
+
+renderers = [RoomRenderer(world.rooms[0]), BodyRenderer(bodies)]
 
 # render stats
 def stats():
@@ -178,6 +214,8 @@ while not libtcod.console_is_window_closed():
 	# RENDER
 	libtcod.console_clear(None)
 
+	libtcod.console_set_default_foreground(None, libtcod.white)
+
 	for r in renderers:
 		r.render(None)
 
@@ -186,32 +224,14 @@ while not libtcod.console_is_window_closed():
 	
 	stats()
 	
-	#for y in range(0, SCREEN_HEIGHT):
-	#	for x in range(0, SCREEN_WIDTH):
-	#		if not routing.collide(x, y, board.parts):
-	#			libtcod.console_print(None, x, y, "Y")
-	
-	libtcod.console_set_default_foreground(None, libtcod.grey)
-	libtcod.console_set_default_background(None, libtcod.black)
-
 	# mouse handler
 	if mouse.lbutton_pressed:
 		x = mouse.x/FONT_WIDTH
 		y = mouse.y/FONT_HEIGHT
-
-		if x >= 0 and y >= 0 and x < SCREEN_WIDTH and y < SCREEN_HEIGHT:
-			if makingwire:
-				wirenew.route(x, y)
-			else:
-				wirenew = Wire(None, None, [(x, y)])
-				makingwire = True
 	
 	if mouse.rbutton_pressed:
-		if makingwire:
-			board.wires.append(wirenew)
-		makingwire = False
-
-		#testchip2.rotate(Chip.directions[(Chip.directions.index(testchip2.dir)+1)%4])
+		x = mouse.x/FONT_WIDTH
+		y = mouse.y/FONT_HEIGHT
 	
 	# key handler
 	event_sys.fire('keypress', key.vk)
